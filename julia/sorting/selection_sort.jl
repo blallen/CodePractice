@@ -1,3 +1,5 @@
+include("../utils.jl")
+
 function selection_sort!(A)
     for i in 1:(length(A)-1)
         min_index = i
@@ -10,10 +12,4 @@ function selection_sort!(A)
 
         exchange!(A, i, min_index)
     end
-end
-
-function exchange!(A, i, j)
-    tmp = A[i]
-    A[i] = A[j]
-    A[j] = tmp
 end
