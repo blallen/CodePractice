@@ -3,15 +3,15 @@ function find_max_subarray(A, start, finish)
     sum = 0
     max_index = -1
 
-    for i in start:finish
+    start > finish ? step = -1 : step = 1
+
+    for i in range(start, finish, step = step)
         sum += A[i]
         if sum > max_sum
             max_sum = sum
             max_index = i
         end
     end
-
-    @show max_index, max_sum
 
     return (max_index, max_sum)
 end
@@ -31,8 +31,6 @@ function find_maximum_subarray(A, low, high)
 
     mid = floor(Int, (low + high) / 2)
 
-    @show low, mid, high
-
     left_low, left_high, left_sum = find_maximum_subarray(A, low, mid)
     right_low, right_high, right_sum = find_maximum_subarray(A, mid+1, high)
     x_low, x_high, x_sum = find_max_crossing_subarray(A, low, mid, high)
@@ -44,4 +42,12 @@ function find_maximum_subarray(A, low, high)
     else
         return (x_low, x_high, x_sum)
     end
+end
+
+using Test
+
+@testset "max sub array" begin
+    input = [13 -3 -25 20 -3 -16 -23 18 20 -7 12 -5 -22 15 -4 7]
+    output = (8, 11, 43)
+    @test find_maximum_subarray(input, 1, length(input)) == output
 end
