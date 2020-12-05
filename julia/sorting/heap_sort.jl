@@ -47,7 +47,7 @@ function build_max_heap!(A)
     return heap
 end
 
-function heapsort!(A)
+function heap_sort!(A)
     heap = build_max_heap!(A)
     for i in range(length(A), 2, step = -1)
         exchange!(heap.array, 1, i)

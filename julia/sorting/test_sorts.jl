@@ -4,6 +4,7 @@ include("insertion_sort.jl")
 include("selection_sort.jl")
 include("merge_sort.jl")
 include("heap_sort.jl")
+include("quick_sort.jl")
 
 @testset "test sorting correctness" begin
     inputs = [
@@ -42,7 +43,15 @@ include("heap_sort.jl")
     @testset "heap sort" begin
         for (input, output) in zip(inputs, outputs)
             A = copy(input)
-            merge_sort!(A, 1, length(A))
+            heap_sort!(A)
+            @test A == output
+        end
+    end
+
+    @testset "quick sort" begin
+        for (input, output) in zip(inputs, outputs)
+            A = copy(input)
+            quick_sort!(A, 1, length(A))
             @test A == output
         end
     end
