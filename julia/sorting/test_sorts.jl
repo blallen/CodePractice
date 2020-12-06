@@ -13,12 +13,14 @@ include("counting_sort.jl")
         [4 1 3 2 16 9 10 14 8 7],
         [2 8 7 1 3 5 6 4],
         [2 5 3 0 2 3 0 3],
+        [329 457 657 839 436 720 355],
     ]
     outputs = [
         [1 2 2 3 4 5 6 7],
         [1 2 3 4 7 8 9 10 14 16],
         [1 2 3 4 5 6 7 8],
         [0 0 2 2 3 3 3 5],
+        [329 355 436 457 657 720 839],
     ]
 
     @testset "insertion sort" begin
@@ -71,6 +73,14 @@ include("counting_sort.jl")
             k = maximum(A)
             B = counting_sort(A, k)
             @test B == output
+        end
+    end
+
+    @testset "radix sort" begin
+        for (input, output) in zip(inputs, outputs)
+            A = copy(input)
+            radix_sort!(A)
+            @test A == output
         end
     end
 end
