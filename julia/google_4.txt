@@ -1,0 +1,10 @@
+I trained a logistic regression model with a large number of binary input features. But my online serving system is RAM-constrained and cannot load the model. What can I do to make the model smaller, sacrificing as little accuracy as possible?
+
+
+"Build a system which extracts positive and negative aspects of a product from user reviews. For example a review:
+ ""The camera of the phone is really bad""
+ We need to extract a negative aspect which is ""camera""
+ Another review:
+ ""It has a beautiful design""
+ We need to extract a positive aspect which is ""design"""
+
