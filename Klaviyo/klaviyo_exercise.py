@@ -7,9 +7,16 @@ from matplotlib import pyplot
 ############## 
 
 ## load data
-input_data = pd.read_csv("screening_exercise_orders_v202101.csv", parse_dates = True)
+input_data = pd.read_csv("screening_exercise_orders_v202101.csv", parse_dates = ['date'])
 
 # check labels and such
+print(
+"""
+##############
+# Exercise 0 #
+##############
+"""
+)
 print(input_data.head(5))
 
 ### create desired output data frame
@@ -22,7 +29,35 @@ output_data = \
         )
 
 # print first 10 rows
+print(
+"""
+##############
+# Exercise 1 #
+##############
+"""
+)
+
 print(output_data.head(10))
+
+##############
+# Exercise 2 #
+##############
+
+input_data['date_week'] = input_data['date'].apply(lambda x: x.isocalendar()[1])
+weekly_data = input_data.groupby(input_data.date_week)['gender'].count()
+
+print(
+"""
+##############
+# Exercise 2 #
+##############
+"""
+)
+
+print(weekly_data.head(5))
+
+weekly_data.plot(kind='bar').get_figure().savefig('weekly.pdf')
+
 
 
 ##############
@@ -63,12 +98,32 @@ delta_means = abs(mean_0 - mean_1)
 sigma_0 = delta_means / sem_0
 sigma_1 = delta_means / sem_1
 
+print(
+"""
+##############
+# Exercise 3 #
+##############
+"""
+)
+
 print(gender_data.head(2))
 
-string = "The difference in mean order value between the two genders of {0:.2f} is significant because it is {1:.2f} ({2:.2f}) times the standard error on the mean of {3:.2f} ({4:.2f}) for gender 0 (1). \nMeans and standard errors were calculated in the standard manner."
+string = "\nThe difference in mean order value between the two genders of {0:.2f} is significant because it is {1:.2f} ({2:.2f}) times the standard error on the mean of {3:.2f} ({4:.2f}) for gender 0 (1). \nMeans and standard errors were calculated in the standard manner."
 
 # ({.2f} for gender 0 and {.2f} for gender 1) mean_0, mean_1, 
 
 string = string.format(delta_means, sigma_0, sigma_1, sem_0, sem_1)
 
 print(string)
+
+##############
+# Exercise 4 #
+##############
+
+print(
+"""
+##############
+# Exercise 4 #
+##############
+"""
+)
