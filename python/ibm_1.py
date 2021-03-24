@@ -2,21 +2,24 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.compose import make_column_transformer
 
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, classification_report
 
-import matplotlib.pyplot as plot
+
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.colors as mcolors
-import matplotlib.patches as mpatches
-import scikitplot as skplt
 
 import numpy
 import pandas
 import sklearn
+import matplotlib.pyplot as plot
+import matplotlib.patches as mpatches
+import scikitplot as skplot
+
 from sklearn import impute
 from sklearn import preprocessing
 from sklearn import pipeline
 from sklearn import compose
+from sklearn import model_selection
+from sklearn import metrics
 
 ###############
 ## Get the data
@@ -155,18 +158,9 @@ label = label_encoder.fit_transform(label)
 ## Fancy Plotting
 ###############
 
-area = 75
-x = df_churn['ESTINCOME']
-y = df_churn['DAYSSINCELASTTRADE']
-z = df_churn['TOTALDOLLARVALUETRADED']
-
-pop_a = mpatches.Patch(color='#BB6B5A', label='High')
-pop_b = mpatches.Patch(color='#E5E88B', label='Medium')
-pop_c = mpatches.Patch(color='#8CCB9B', label='Low')
-
-"""
+'''
 convert label # to hexcode color
-"""
+'''
 def colormap(risk_list):
     cols=[]
 
@@ -180,6 +174,18 @@ def colormap(risk_list):
             
     return cols
 
+pop_a = mpatches.Patch(color='#BB6B5A', label='High')
+pop_b = mpatches.Patch(color='#E5E88B', label='Medium')
+pop_c = mpatches.Patch(color='#8CCB9B', label='Low')
+
+handles = [pop_a, pop_b, pop_c]
+
+"""
+area = 75
+x = df_churn['ESTINCOME']
+y = df_churn['DAYSSINCELASTTRADE']
+z = df_churn['TOTALDOLLARVALUETRADED']
+
 fig = plot.figure(figsize = (12, 6))
 fig.suptitle('2D and 3D view of churn risk data')
 
@@ -191,7 +197,7 @@ ax_2D.scatter(x, y, alpha = 0.8, c = colormap(label), s = area)
 ax_2D.set_ylabel('DAYS SINCE LAST TRADE')
 ax_2D.set_xlabel('ESTIMATED INCOME')
 
-plot.legend(handles = [pop_a, pop_b, pop_c])
+plot.legend(handles = handles)
 
 # second sub plot
 ax_3D = fig.add_subplot(1, 2, 2, projection = '3d')
@@ -202,6 +208,116 @@ ax_3D.set_xlabel('TOTAL DOLLAR VALUE TRADED')
 ax_3D.set_ylabel('ESTIMATED INCOME')
 ax_3D.set_zlabel('DAYS SINCE LAST TRADE')
 
-plot.legend(handles = [pop_a, pop_b, pop_c])
+plot.legend(handles = handles)
 
 fig.savefig('fancy_plot.pdf',  bbox_inches='tight')
+"""
+
+###############
+## Split data
+###############
+
+X_train, X_test, y_train, y_test = model_selection.train_test_split(features, label, random_state = 0)
+
+print("Dimensions of datasets that will be used for training : Input features" + str(X_train.shape) + " Output label" + str(y_train.shape))
+print("Dimensions of datasets that will be used for testing : Input features" + str(X_test.shape) + " Output label" + str(y_test.shape))
+
+def compared_2D(X_test, y_test, y_pred, model_name, handles):
+    fig = plot.subplots(ncols = 2, figsize = (10, 4))
+
+    score = metrics.accuracy_score(y_test, y_pred)
+    suptitle = 'Actual vs Predicted data : ' + model_name + '. Accuracy : %.2f' % score
+    fig.suptitle(suptitle)
+
+    ax_test = fig.add_subplot(121)
+    ax_test.scatter(
+        X_test['ESTINCOME'],
+        X_test['DAYSSINCELASTTRDE'], 
+        alpha = 0.8,
+        c = colormap(y_test),
+    )
+
+    ax_test.set_xlabel('ESTIMATED INCOME')
+    ax_test.set_ylabel('DAYS SINCE LAST TRADE')
+
+    plot.title('Actual')
+    plot.legend(handles = handles)
+
+    ax_pred.subplot(122)
+    ax_pred.scatter(
+        X_test['ESTINCOME'],
+        X_test['DAYSSINCELASTTRDE'], 
+        alpha = 0.8,
+        c = colormap(y_pred),
+    )
+
+    ax_pred.set_xlabel('ESTIMATED INCOME')
+    ax_pred.set_ylabel('DAYS SINCE LAST TRADE')
+
+    plot.title('Predicted')
+    plot.legend(handles = [pop_a, pop_b, pop_c])
+
+    fig.savefig(model_name + '_2D.pdf',  bbox_inches='tight')
+
+def compare_3D(X_test, y_test, y_pred, model_name, handles):
+    fig = plot.figure(figsize = (12, 10))
+
+    score = metrics.accuracy_score(y_test, y_pred)
+    suptitle = 'Actual vs Predicted data : ' + model_name + '. Accuracy : %.2f' % score
+    fig.suptitle(suptitle)
+
+    ax_test = fig.add_subplot(121, projection = '3d')
+    ax_test.scatter(
+        X_test['TOTALDOLLARVALUETRADED'],
+        X_test['ESTINCOME'],
+        X_test['DAYSSINCELASTTRDE'],
+        alpha = 0.8,
+        c = colormap(y_test),
+        marker = 'o',
+    )
+
+    ax_test.set_xlabel('TOTAL DOLLAR VALUE TRADED')
+    ax_test.set_ylabel('ESTIMATED INCOME')
+    ax_test.set_zlabel('DAYS SINCE LAST TRADE')
+
+    plot.legend(handles = [pop_a, pop_b, pop_c])
+    plot.title('Actual')
+
+    ax_pred = fig.add_subplot(122, projection = '3d')
+    ax_pred.scatter(
+        X_test['TOTALDOLLARVALUETRADED'],
+        X_test['ESTINCOME'],
+        X_test['DAYSSINCELASTTRDE'],
+        alpha = 0.8,
+        c = colormap(y_pred),
+        marker = 'o',
+    )
+
+    ax_pred.set_xlabel('TOTAL DOLLAR VALUE TRADED')
+    ax_pred.set_ylabel('ESTIMATED INCOME')
+    ax_pred.set_zlabel('DAYS SINCE LAST TRADE')
+
+    plot.legend(handles = [pop_a, pop_b, pop_c])
+    plot.title('Predicted')
+
+    fig.savefig(model_name + '_3D.pdf',  bbox_inches='tight')
+
+def model_metrics(y_test, y_pred):
+    print("Decoded values of churn risk after applying inverse of label encoder : " + str(numpy.unique(y_pred)))
+
+    fig = skplot.metrics.plot_confusion_matrix(
+        y_test,
+        y_pred,
+        text_fontsize = 'small',
+        cmap = 'Greens',
+        figsize = (6, 4)
+    )
+    fig.savefig('model_metrics.pdf',  bbox_inches='tight')
+
+    report = metrics.classification_report(y_test, y_pred)
+    print("The classification report for the model : \n\n")
+    print(report)
+
+###############
+## Build model
+###############
