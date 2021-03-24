@@ -1,9 +1,6 @@
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.compose import make_column_transformer
 
-from sklearn.model_selection import train_test_split
-
-
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.colors as mcolors
 
@@ -20,6 +17,7 @@ from sklearn import pipeline
 from sklearn import compose
 from sklearn import model_selection
 from sklearn import metrics
+from sklearn import ensemble
 
 ###############
 ## Get the data
@@ -222,8 +220,8 @@ X_train, X_test, y_train, y_test = model_selection.train_test_split(features, la
 print("Dimensions of datasets that will be used for training : Input features" + str(X_train.shape) + " Output label" + str(y_train.shape))
 print("Dimensions of datasets that will be used for testing : Input features" + str(X_test.shape) + " Output label" + str(y_test.shape))
 
-def compared_2D(X_test, y_test, y_pred, model_name, handles):
-    fig = plot.subplots(ncols = 2, figsize = (10, 4))
+def compare_2D(X_test, y_test, y_pred, model_name, handles):
+    fig = plot.figure(figsize = (10, 4))
 
     score = metrics.accuracy_score(y_test, y_pred)
     suptitle = 'Actual vs Predicted data : ' + model_name + '. Accuracy : %.2f' % score
@@ -232,7 +230,7 @@ def compared_2D(X_test, y_test, y_pred, model_name, handles):
     ax_test = fig.add_subplot(121)
     ax_test.scatter(
         X_test['ESTINCOME'],
-        X_test['DAYSSINCELASTTRDE'], 
+        X_test['DAYSSINCELASTTRADE'], 
         alpha = 0.8,
         c = colormap(y_test),
     )
@@ -243,10 +241,10 @@ def compared_2D(X_test, y_test, y_pred, model_name, handles):
     plot.title('Actual')
     plot.legend(handles = handles)
 
-    ax_pred.subplot(122)
+    ax_pred = fig.add_subplot(122)
     ax_pred.scatter(
         X_test['ESTINCOME'],
-        X_test['DAYSSINCELASTTRDE'], 
+        X_test['DAYSSINCELASTTRADE'], 
         alpha = 0.8,
         c = colormap(y_pred),
     )
@@ -260,7 +258,7 @@ def compared_2D(X_test, y_test, y_pred, model_name, handles):
     fig.savefig(model_name + '_2D.pdf',  bbox_inches='tight')
 
 def compare_3D(X_test, y_test, y_pred, model_name, handles):
-    fig = plot.figure(figsize = (12, 10))
+    fig = plot.figure(figsize = (10, 4))
 
     score = metrics.accuracy_score(y_test, y_pred)
     suptitle = 'Actual vs Predicted data : ' + model_name + '. Accuracy : %.2f' % score
@@ -270,7 +268,7 @@ def compare_3D(X_test, y_test, y_pred, model_name, handles):
     ax_test.scatter(
         X_test['TOTALDOLLARVALUETRADED'],
         X_test['ESTINCOME'],
-        X_test['DAYSSINCELASTTRDE'],
+        X_test['DAYSSINCELASTTRADE'],
         alpha = 0.8,
         c = colormap(y_test),
         marker = 'o',
@@ -287,7 +285,7 @@ def compare_3D(X_test, y_test, y_pred, model_name, handles):
     ax_pred.scatter(
         X_test['TOTALDOLLARVALUETRADED'],
         X_test['ESTINCOME'],
-        X_test['DAYSSINCELASTTRDE'],
+        X_test['DAYSSINCELASTTRADE'],
         alpha = 0.8,
         c = colormap(y_pred),
         marker = 'o',
@@ -302,17 +300,17 @@ def compare_3D(X_test, y_test, y_pred, model_name, handles):
 
     fig.savefig(model_name + '_3D.pdf',  bbox_inches='tight')
 
-def model_metrics(y_test, y_pred):
+def model_metrics(X_test, y_test, y_pred, model, name):
     print("Decoded values of churn risk after applying inverse of label encoder : " + str(numpy.unique(y_pred)))
 
-    fig = skplot.metrics.plot_confusion_matrix(
+    disp = metrics.plot_confusion_matrix(
+        model, 
+        X_test,
         y_test,
-        y_pred,
-        text_fontsize = 'small',
+        normalize = 'pred',
         cmap = 'Greens',
-        figsize = (6, 4)
     )
-    fig.savefig('model_metrics.pdf',  bbox_inches='tight')
+    disp.figure_.savefig(name + '_confusion_matrix.pdf',  bbox_inches='tight')
 
     report = metrics.classification_report(y_test, y_pred)
     print("The classification report for the model : \n\n")
@@ -321,3 +319,33 @@ def model_metrics(y_test, y_pred):
 ###############
 ## Build model
 ###############
+
+name_rfc = 'random_forest'
+classifier_rfc = ensemble.RandomForestClassifier(
+    n_estimators = 100,
+    max_depth = 2,
+    random_state = 0,
+)
+
+model_rfc = pipeline.Pipeline(
+    steps = [
+        ('preprocessor_all', preprocessor_all),
+        ('classifier', classifier_rfc),
+    ],
+)
+
+model_rfc.fit(X_train, y_train)
+y_pred_rfc = model_rfc.predict(X_test)
+
+###############
+## Evaluate model
+###############
+
+compare_2D(X_test, y_test, y_pred_rfc, name_rfc, handles)
+compare_3D(X_test, y_test, y_pred_rfc, name_rfc, handles)
+
+y_test_inv = label_encoder.inverse_transform(y_test)
+y_pred_inv_rfc = label_encoder.inverse_transform(y_pred_rfc)
+
+model_metrics(X_test, y_test, y_pred_rfc, model_rfc, name_rfc)
+# model_metrics(X_test, y_test_inv, y_pred_inv_rfc, model_rfc)
