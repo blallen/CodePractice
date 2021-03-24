@@ -31,7 +31,6 @@ df_churn = df_churn.drop(['ID'], axis=1)
 
 print(df_churn.head())
 
-"""
 ###############
 ## Basic Counting
 ###############
@@ -39,7 +38,6 @@ print(df_churn.head())
 print("The dataset contains columns of the following data types : \n" +str(df_churn.dtypes))
 
 print("The dataset contains following number of records for each of the columns : \n" +str(df_churn.count()))
-
 
 print( "Each category within the churnrisk column has the following count : ")
 print(df_churn.groupby(['CHURNRISK']).size())
@@ -64,7 +62,6 @@ churn_plot.set_ylabel("Frequency")
 
 churn_plot.get_figure().savefig('churn_plot.pdf',  bbox_inches='tight')
 # bbox_inches='tight' is magic
-"""
 
 ###############
 ## Data Cleaning
@@ -73,8 +70,8 @@ churn_plot.get_figure().savefig('churn_plot.pdf',  bbox_inches='tight')
 # Defining the categorical columns 
 columns_categorical = ['GENDER', 'STATUS', 'HOMEOWNER']
 
-# print("Categorical columns : ")
-# print(columns_categorical)
+print("Categorical columns : ")
+print(columns_categorical)
 
 impute_categorical = impute.SimpleImputer(strategy = 'most_frequent')
 # why not mode? who knows?
@@ -96,8 +93,8 @@ columns_numerical = df_churn.select_dtypes(
     include = [numpy.float, numpy.int]
 ).columns
 
-# print("Numerical columns : ")
-# print(columns_numerical)
+print("Numerical columns : ")
+print(columns_numerical)
 
 scaler_numerical = preprocessing.StandardScaler()
 
@@ -123,7 +120,6 @@ preprocessor_all = compose.ColumnTransformer(
     remainder = 'passthrough'
 )
 
-"""
 # The transformation happens in the pipeline. Temporarily done here to show what intermediate value looks like.
 
 # ColumnTransformer.fit_transform() returns a numpy.ndarray
@@ -139,7 +135,6 @@ print(df_churn_num.head())
 df_churn_all = pandas.DataFrame(preprocessor_all.fit_transform(df_churn))
 print("Data after transforming all columns:")
 print(df_churn_all.head())
-"""
 
 # prepare data frame for splitting into train and test sets
 
@@ -150,7 +145,7 @@ label_encoder = preprocessing.LabelEncoder()
 label = df_churn['CHURNRISK']
 
 label = label_encoder.fit_transform(label)
-# print("Encoded value of Churnrisk after applying label encoder : " + str(label))
+print("Encoded value of Churnrisk after applying label encoder : " + str(label))
 
 ###############
 ## Fancy Plotting
@@ -178,7 +173,6 @@ pop_c = mpatches.Patch(color='#8CCB9B', label='Low')
 
 handles = [pop_a, pop_b, pop_c]
 
-"""
 area = 75
 x = df_churn['ESTINCOME']
 y = df_churn['DAYSSINCELASTTRADE']
@@ -209,7 +203,6 @@ ax_3D.set_zlabel('DAYS SINCE LAST TRADE')
 plot.legend(handles = handles)
 
 fig.savefig('fancy_plot.pdf',  bbox_inches='tight')
-"""
 
 ###############
 ## Split data
@@ -348,4 +341,3 @@ y_test_inv = label_encoder.inverse_transform(y_test)
 y_pred_inv_rfc = label_encoder.inverse_transform(y_pred_rfc)
 
 model_metrics(X_test, y_test, y_pred_rfc, model_rfc, name_rfc)
-# model_metrics(X_test, y_test_inv, y_pred_inv_rfc, model_rfc)
