@@ -7,6 +7,8 @@ import matplotlib.pyplot as plot
 from sklearn import datasets
 from sklearn import model_selection
 from sklearn import pipeline
+from sklearn import preprocessing
+from sklearn import linear_model
 from sklearn import ensemble
 from sklearn import metrics
 from sklearn import inspection
@@ -39,7 +41,26 @@ target = pandas.Series(iris.target)
 # normalization
 # onehot encoding
 
+# split into train and test sets
 X_train, X_test, y_train, y_test = model_selection.train_test_split(features, target, random_state = 0)
+
+# define models
+lgr = linear_model.LogisticRegression(
+    random_state = 0,
+    penalty = 'l2',
+    C = 1,
+    tol = 1e-4,
+    max_iter = 100,
+    n_jobs = -1,
+)
+
+# mention pipeline
+lrc = pipeline.Pipeline(
+    steps = [
+        ('scale', preprocessing.StandardScaler()),
+        ('class', lgr)
+    ],
+)
 
 rfc = ensemble.RandomForestClassifier(
     random_state = 0,
@@ -56,21 +77,31 @@ gbc = ensemble.GradientBoostingClassifier(
     max_depth = 3,
 )
 
-# mention pipeline
-# do cross validation
-
-classifiers = { 
+classifiers = {
+    'LogisticReg' : lrc,
     'RandomForest' : rfc, 
     'GradientBoost' : gbc,
 }
 for name, classifier in classifiers.items():
+    # do cross validation
+    scores = model_selection.cross_val_score(
+        classifier,
+        X_train,
+        y_train,
+        cv=10,
+    )
+    print(name + ' model has %0.2f accuracy with a standard deviation of %0.2f' % (scores.mean(), scores.std()))
+
+    # actually train
     classifier.fit(X_train, y_train)
     y_pred = classifier.predict(X_test)
 
+    # look at metrics
     report = metrics.classification_report(y_test, y_pred)
     print('The classification report for ' + name + ' model:')
     print(report)
 
+    # plot confusion matrix
     cm = metrics.plot_confusion_matrix(
         classifier, 
         X_test,
@@ -81,6 +112,7 @@ for name, classifier in classifiers.items():
     path = 'plots/cm_' + name + '.pdf'
     cm.figure_.savefig(path,  bbox_inches='tight')
 
+    # plot partial dependence plots
     for i in [0, 1, 2]:
         pdp1D = inspection.plot_partial_dependence(
             classifier,
@@ -110,7 +142,4 @@ for name, classifier in classifiers.items():
         """
     # end
 # end
-
-# grad boost
-# adaboost
 
