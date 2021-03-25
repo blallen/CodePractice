@@ -29,3 +29,17 @@ def recurse(N):
     return 2 * recurse(N-1) + recurse(N-2)
 
 print(recurse(7))
+
+def recurse_all_cases(N, x1, x2, c1, c2):
+    if N == 1:
+        return x1
+
+    if N == 2:
+        return x2
+
+    x_Nm1 = recurse_all_cases(N-1, x1, x2, c1, c2)
+    x_Nm2 = recurse_all_cases(N-2, x1, x2, c1, c2)
+
+    answer = c1 * x_Nm1 + c2 * x_Nm2
+
+    return answer
