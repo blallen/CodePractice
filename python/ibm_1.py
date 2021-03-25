@@ -139,11 +139,9 @@ print(df_churn_all.head())
 # prepare data frame for splitting into train and test sets
 
 features = df_churn.drop(['CHURNRISK'], axis = 1)
-
-label_churn = pandas.DataFrame(df_churn, columns = ['CHURNRISK'])
-label_encoder = preprocessing.LabelEncoder()
 label = df_churn['CHURNRISK']
 
+label_encoder = preprocessing.LabelEncoder()
 label = label_encoder.fit_transform(label)
 print("Encoded value of Churnrisk after applying label encoder : " + str(label))
 
@@ -310,7 +308,7 @@ def model_metrics(X_test, y_test, y_pred, model, name):
     print(report)
 
 ###############
-## Build model
+## Build models
 ###############
 
 name_rfc = 'random_forest'
@@ -330,8 +328,25 @@ model_rfc = pipeline.Pipeline(
 model_rfc.fit(X_train, y_train)
 y_pred_rfc = model_rfc.predict(X_test)
 
+name_rfc = 'grad_boost'
+classifier_rfc = ensemble.GradientBoostingClassifier(
+    n_estimators = 100,
+    max_depth = 2,
+    random_state = 0,
+)
+
+model_rfc = pipeline.Pipeline(
+    steps = [
+        ('preprocessor_all', preprocessor_all),
+        ('classifier', classifier_rfc),
+    ],
+)
+
+model_rfc.fit(X_train, y_train)
+y_pred_rfc = model_rfc.predict(X_test)
+
 ###############
-## Evaluate model
+## Evaluate models
 ###############
 
 compare_2D(X_test, y_test, y_pred_rfc, name_rfc, handles)
