@@ -34,7 +34,8 @@ features = df.drop(['class'], axis = 1)
 target = pandas.Series(cancer.target)
 
 # split into train and test sets
-X_train, X_test, y_train, y_test = model_selection.train_test_split(features, target, random_state = 0)
+splits = model_selection.train_test_split(features, target, random_state = 0)
+X_train, X_test, y_train, y_test = splits
 
 # define model
 lgr = linear_model.LogisticRegression(
