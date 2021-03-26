@@ -27,7 +27,7 @@ print(df.groupby('species').size())
 print(df.head())
 
 # plot distributions
-seaborn.pairplot(data=df, hue='species').savefig('plots/iris_pairs.pdf')
+seaborn.pairplot(data = df, hue = 'species').savefig('plots/iris/pairs.pdf')
 
 # create feature and target dataframes
 features = df.drop(['species'], axis = 1)
@@ -109,7 +109,7 @@ for name, classifier in classifiers.items():
         # normalize = 'pred',
         cmap = 'Greens',
     )
-    path = 'plots/cm_' + name + '.pdf'
+    path = 'plots/iris/cm_' + name + '.pdf'
     cm.figure_.savefig(path,  bbox_inches='tight')
 
     # plot partial dependence plots
@@ -121,7 +121,7 @@ for name, classifier in classifiers.items():
             target = i,
             n_jobs = -1,
         )
-        path = 'plots/pdp1D_' + str(i) + '_' + name + '.pdf'
+        path = 'plots/iris/pdp1D_' + str(i) + '_' + name + '.pdf'
         pdp1D.figure_.savefig(path,  bbox_inches='tight')
 
         """
